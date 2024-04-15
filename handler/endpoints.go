@@ -30,7 +30,7 @@ func (s *Server) Login(ctx echo.Context) error {
 
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, generated.ErrorResponse{
-			Message: "Error login",
+			Message: "User not found",
 		})
 	}
 
@@ -39,7 +39,7 @@ func (s *Server) Login(ctx echo.Context) error {
 		token, err := util.CreateToken(userId.UserID, expirationTime, s.JWTKey)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, generated.ErrorResponse{
-				Message: "Error login",
+				Message: "Fail to create token",
 			})
 		}
 		authorizationCookie := new(http.Cookie)
@@ -124,7 +124,7 @@ func (s *Server) GetProfile(ctx echo.Context) error {
 			Message: "Please login",
 		})
 	}
-	token, err := util.ParseToken(cookie.Value)
+	token, err := util.ParseToken(cookie.Value, s.JWTKey)
 	if err != nil {
 		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{
 			Message: err.Error(),
@@ -155,7 +155,7 @@ func (s *Server) UpdateProfile(ctx echo.Context, params generated.UpdateProfileP
 			Message: "Please login",
 		})
 	}
-	token, err := util.ParseToken(cookie.Value)
+	token, err := util.ParseToken(cookie.Value, s.JWTKey)
 	if err != nil {
 		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{
 			Message: "Failed to update profile",
